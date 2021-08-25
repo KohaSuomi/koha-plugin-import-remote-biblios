@@ -4,7 +4,21 @@
 # Connects to our booksellers services to fetch the selection lists and stages them to the MARC reservoir
 # Calls the /misc/stage_file.pl to do the dirty staging!
 
+use strict;
+use warnings;
+
+BEGIN {
+    # find Koha's Perl modules
+    # test carefully before changing this
+    use FindBin;
+    eval { require "$FindBin::Bin/../kohalib.pl" };
+}
+use
+  CGI; # NOT a CGI script, this is just to keep C4::Templates::gettemplate happy
+use C4::Context;
 use Modern::Perl;
+use Getopt::Long;
+use Koha::Plugins;
 use Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter;
 
 binmode( STDOUT, ":utf8" );
