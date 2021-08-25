@@ -46,11 +46,6 @@ use Data::Dumper;
 use C4::Context;
 use C4::Matcher;
 
-use Koha::Exception::BadParameter;
-use Koha::Exception::File;
-use Koha::Exception::UnknownProgramState;
-use Koha::Exception::Parse;
-use Koha::Exception::BadSystemPreference;
 
 my $logger = Koha::Logger->get({category => __PACKAGE__});
 
@@ -80,7 +75,7 @@ sub new {
 sub _validateNew {
     my ($class, $params) = @_;
     unless ($params->{remoteId}) {
-        Koha::Exception::BadParameter->throw(error => "Param 'remoteId' is missing");
+        die "Param 'remoteId' is missing";
     }
     unless ($params->{packageMaxAge}) {
         $params->{packageMaxAge} = 365;
@@ -206,7 +201,7 @@ sub _getPackages {
     unless($packagesDir->e()) {
         $packagesDir->create();
         unless($packagesDir->e()) {
-            Koha::Exception::File->throw(error => "Couldn't create a directory for marc packages for \$remoteId '".$self->getRemoteId()."'");
+            die "Couldn't create a directory for marc packages for \$remoteId '".$self->getRemoteId()."'");
         }
     }
 
@@ -215,7 +210,7 @@ sub _getPackages {
         my $newPackage = $packagesDir->file($filePath);
         $newPackage->touch();
         unless($newPackage->e()) {
-            Koha::Exception::File->throw(error => "Couldn't create a marc package file '".$newPackage->stringify."' for \$remoteId '".$self->getRemoteId()."'");
+            die "Couldn't create a marc package file '".$newPackage->stringify."' for \$remoteId '".$self->getRemoteId()."'");
         }
         $ftpcon->get($filePath, $newPackage->stringify);
         push(@newPackages, $newPackage);
@@ -290,7 +285,7 @@ sub stageLocalPackage {
                     '--match',   ($matcher->{id} || 1),
                     '--comment',  '',
                     '--format',   $format);
-        open(my $OUT, "@args 2>&1 |") or Koha::Exception::SystemCall->throw(error => "system @args failed: $!");
+        open(my $OUT, "@args 2>&1 |") or die "system @args failed: $!";
         my $output = join("", <$OUT>);
         $package->{stagingReport}->{plaintext} = $output;
         close($OUT);
@@ -317,7 +312,7 @@ sub stageLocalPackage {
                       "matched:'".$package->{stagingReport}->{recordsMatched}."' ".
                       "") if $logger->is_info();
     } catch {
-        $package->{stagingReport}->{error} = (blessed($_)) ? $_ : Koha::Exception->newFromDie($_);
+        $package->{stagingReport}->{error} = (blessed($_)) ? $_ : die $_;
         $logger->error( $package->{stagingReport}->{error} ) if $logger->is_error();
     };
 }
@@ -345,14 +340,14 @@ sub commitStagedPackage {
         my @args = ($ENV{KOHA_PATH}.'/misc/commit_file.pl',
                     '--batch-number', $package->{batchNumber},
                     );
-        open(my $OUT, "@args 2>&1 |") or Koha::Exception::SystemCall->throw(error => "system @args failed: $!");
+        open(my $OUT, "@args 2>&1 |") or die "system @args failed: $!";
         my $output = join("", <$OUT>);
         $package->{commitReport}->{plaintext} = $output;
         close($OUT);
 
         if (my $m = _parseString(\$output, 'Batch number:\s+(\d+)')) {
             if ($m->[0] != $package->{batchNumber}) {
-                Koha::Exception::UnknownProgramState->throw(error => "Staged batchNumber '".$package->{batchNumber}."' is different from the committed batchNumber '$1' for \$package '$package'");
+                die "Staged batchNumber '".$package->{batchNumber}."' is different from the committed batchNumber '$1' for \$package '$package'";
             }
         }
         if (my $m = _parseString(\$output, 'Number of new records added:\s+(\d+)')) {
@@ -370,7 +365,7 @@ sub commitStagedPackage {
                       "ignored:'".$package->{commitReport}->{recordsIgnored}."' ".
                       "") if $logger->is_info();
     } catch {
-        $package->{commitReport}->{error} = (blessed($_)) ? $_ : Koha::Exception->newFromDie($_);
+        $package->{commitReport}->{error} = (blessed($_)) ? $_ : die $_;
         $logger->error( $package->{commitReport}->{error} ) if $logger->is_error();
     }
 }
@@ -380,7 +375,7 @@ sub _parseString {
     my @matches = $$haystackPtr =~ /$needle/s;
     unless (@matches) {
         my @cc = caller(1);
-        Koha::Exception::Parse->throw(error => $cc[3]."():> Couldn't find \$needle '$needle' from \$haystack '$$haystackPtr'");
+        die $cc[3]."():> Couldn't find \$needle '$needle' from \$haystack '$$haystackPtr'";
     }
     return \@matches;
 }
