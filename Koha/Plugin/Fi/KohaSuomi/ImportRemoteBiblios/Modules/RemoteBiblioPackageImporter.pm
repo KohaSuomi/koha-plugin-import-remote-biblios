@@ -51,7 +51,7 @@ my $logger = Koha::Logger->get({category => __PACKAGE__});
 
 =head2 new
 
-    my $importer = C4::KohaSuomi::RemoteBiblioPackageImporter->new({
+    my $importer = Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter->new({
             remoteId => 'BTJBiblios', #The name of the remote bibliographic package source in syspref <<TODO>>
             packageMaxAge => 356 #in days. Stop looking for packages older than
                                  #this when staging MARC for the Koha reservoir
@@ -256,7 +256,7 @@ sub _isPackageImported {
 
 =head stageLocalPackages
 
-    C4::KohaSuomi::RemoteBiblioPackageImporter->stageLocalPackages($localPackages, $encoding, $matcher, $format);
+    Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter->stageLocalPackages($localPackages, $encoding, $matcher, $format);
 
 =cut
 
@@ -270,7 +270,7 @@ sub stageLocalPackages {
 
 =head2 stageLocalPackage
 
-    C4::KohaSuomi::RemoteBiblioPackageImporter->stageLocalPackages($localPackages, $encoding, $matcher, $format);
+    Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter->stageLocalPackages($localPackages, $encoding, $matcher, $format);
 
 =cut
 
