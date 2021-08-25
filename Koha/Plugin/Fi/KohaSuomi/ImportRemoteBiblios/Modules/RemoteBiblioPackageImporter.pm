@@ -1,34 +1,3 @@
-#!/bin/bash/perl
-
-# Copyright (C) 2016 KohaSuomi
-#
-# This file is part of Koha.
-#
-# Koha is free software; you can redistribute it and/or modify it under the
-# terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 3 of the License, or (at your option) any later
-# version.
-#
-# Koha is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with Koha; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-=NAME
-
-RemoteBiblioPackageImporter
-
-=SYNOPSIS
-
-1. Connects to a remote target to pull new bibliographic record packages
-2. Validates them
-3. Stages them
-4. Optionally pushes them to the catalogue.
-
-=cut
 package Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter;
 
 use Modern::Perl;
@@ -45,6 +14,7 @@ use Data::Dumper;
 
 use C4::Context;
 use C4::Matcher;
+use Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::FTP;
 
 
 my $logger = Koha::Logger->get({category => __PACKAGE__});
@@ -145,7 +115,7 @@ sub importFromRemote {
 sub getNewPackages {
     my ($self) = @_;
     my $importePackages = $self->loadImportedPackages();
-    my $ftpcon = Koha::FTP->new(  Koha::FTP::connect($self->getRemote(), $self->getRemoteId())  );
+    my $ftpcon = Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::FTP->new(  Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::FTP::connect($self->getRemote(), $self->getRemoteId())  );
     $ftpcon->changeFtpDirectory($self->getRemote()->basedir);
 
     my $newRemoteFilePaths = $self->_listNewFiles($ftpcon);
@@ -201,7 +171,7 @@ sub _getPackages {
     unless($packagesDir->e()) {
         $packagesDir->create();
         unless($packagesDir->e()) {
-            die "Couldn't create a directory for marc packages for \$remoteId '".$self->getRemoteId()."'");
+            die "Couldn't create a directory for marc packages for \$remoteId '".$self->getRemoteId()."'";
         }
     }
 
@@ -210,7 +180,7 @@ sub _getPackages {
         my $newPackage = $packagesDir->file($filePath);
         $newPackage->touch();
         unless($newPackage->e()) {
-            die "Couldn't create a marc package file '".$newPackage->stringify."' for \$remoteId '".$self->getRemoteId()."'");
+            die "Couldn't create a marc package file '".$newPackage->stringify."' for \$remoteId '".$self->getRemoteId()."'";
         }
         $ftpcon->get($filePath, $newPackage->stringify);
         push(@newPackages, $newPackage);
