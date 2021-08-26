@@ -36,7 +36,6 @@ sub new {
     bless($self, $class);
     Log::Log4perl::MDC->put('remote', $params);
 
-    $self->setRemote($params);
     $self->loadImportedPackages();
 
     $logger->trace("Object instantiated with params") if $logger->is_trace();
@@ -53,12 +52,8 @@ sub _validateNew {
     return @_;
 }
 
-sub setRemote {
-    my ($self, $params) = @_;
-    $self->{remote} = $params;
-}
 sub getRemote {
-    return shift->{remote};
+    return shift->{_params};
 }
 sub getRemoteId {
     return shift->{_params}->{remoteId};
@@ -75,7 +70,7 @@ sub getPackageMaxAge {
 
 sub getLocalStorageDir {
     my ($self) = @_;
-    return File::Fu::Dir->new( $self->getRemote()->localStorageDir , $self->getRemoteId() )
+    return File::Fu::Dir->new( $self->getRemote()->{localStorageDir} , $self->getRemoteId() )
 }
 
 =head2 importFromRemote
@@ -94,10 +89,10 @@ sub importFromRemote {
     my $remote = $self->getRemote();
     my $newLocalPackages = $self->getNewPackages();
 
-    if ($remote->stageFiles) {
-        $self->stageLocalPackages($newLocalPackages, $remote->encoding, $remote->matcher, $remote->format);
+    if ($remote->{stageFiles}) {
+        $self->stageLocalPackages($newLocalPackages, $remote->{encoding}, $remote->{matcher}, $remote->{format});
 
-        if ($remote->commitFiles) {
+        if ($remote->{commitFiles}) {
             $self->commitStagedPackages($newLocalPackages);
         }
     }
@@ -116,7 +111,7 @@ sub getNewPackages {
     my ($self) = @_;
     my $importePackages = $self->loadImportedPackages();
     my $ftpcon = Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::FTP->new(  Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::FTP::connect($self->getRemote(), $self->getRemoteId())  );
-    $ftpcon->changeFtpDirectory($self->getRemote()->basedir);
+    $ftpcon->changeFtpDirectory($self->getRemote()->{basedir});
 
     my $newRemoteFilePaths = $self->_listNewFiles($ftpcon);
     my $newLocalPackages = $self->_getPackages($ftpcon, $newRemoteFilePaths);
@@ -135,7 +130,7 @@ sub _listNewFiles {
     my ($self, $ftpcon) = @_;
 
     my $now = DateTime->now();
-    my $regexpValidator = $self->getRemote()->fileRegexp;
+    my $regexpValidator = $self->getRemote()->{fileRegexp};
     my $ftpfiles = $ftpcon->listFtpDirectory();
     my @newFilePaths;
     foreach my $file (@$ftpfiles) {
