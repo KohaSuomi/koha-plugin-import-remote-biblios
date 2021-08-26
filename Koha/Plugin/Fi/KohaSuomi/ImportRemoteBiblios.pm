@@ -5,13 +5,14 @@ use Modern::Perl;
 
 ## Required for all plugins
 use base qw(Koha::Plugins::Base);
+use Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter;
 
 ## We will also need to include any Koha libraries we want to access
 use C4::Context;
 use utf8;
 
 ## Here we set our plugin version
-our $VERSION = "1.1";
+our $VERSION = "1.2";
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {

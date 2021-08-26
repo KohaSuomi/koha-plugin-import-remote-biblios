@@ -25,10 +25,10 @@ binmode( STDOUT, ":utf8" );
 binmode( STDERR, ":utf8" );
 
 my ( $help, $config);
-my $verbose = 0;
+my $verbose;
 
 GetOptions(
-    'verbose=i'     => \$verbose,
+    'verbose'       => \$verbose,
     'config=s'      => \$config,
     'h|help'        => \$help,
 );
@@ -48,5 +48,6 @@ if(!$config) {
 }
 
 my $configfile = eval { YAML::XS::LoadFile($config) };
+$configfile->{verbose} = $verbose;
 my $importer = Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter->new($configfile);
 $importer->importFromRemote();

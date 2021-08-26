@@ -17,8 +17,6 @@ use C4::Matcher;
 use Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::FTP;
 
 
-my $logger = Koha::Logger->get({category => __PACKAGE__});
-
 =head2 new
 
     my $importer = Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter->new({
@@ -38,7 +36,7 @@ sub new {
 
     $self->loadImportedPackages();
 
-    $logger->trace("Object instantiated with params") if $logger->is_trace();
+    print "Object instantiated with params" if $self->{_params}->{verbose};
     return $self;
 }
 sub _validateNew {
@@ -51,7 +49,9 @@ sub _validateNew {
     }
     return @_;
 }
-
+sub verbose {
+    return shift->{_params}->{verbose};
+}
 sub getRemote {
     return shift->{_params};
 }
@@ -84,7 +84,7 @@ Pulls bibliographic records from the given remote.
 
 sub importFromRemote {
     my ($self) = @_;
-    $logger->trace("Importing") if $logger->is_trace();
+    print "Importing\n" if $self->verbose;
 
     my $remote = $self->getRemote();
     my $newLocalPackages = $self->getNewPackages();
@@ -134,25 +134,25 @@ sub _listNewFiles {
     my $ftpfiles = $ftpcon->listFtpDirectory();
     my @newFilePaths;
     foreach my $file (@$ftpfiles) {
-        $logger->debug("Looking at package '$file'") if $logger->is_debug();
+        print "Looking at package '$file'\n" if $self->verbose;
         if ($file =~ qr($regexpValidator)) { #Pick only files of specific format
             my $difference_days = _getDateDiff($1, $2, $3, $now->year(), $now->month(), $now->day());
 
             unless ( $difference_days >= 0 &&
                      $difference_days < $self->getPackageMaxAge()) { #if the package is too old, skip trying to stage it.
-                $logger->trace("Package '$file' is stale") if $logger->is_trace();
+                print "Package '$file' is stale\n" if $self->verbose;
                 next;
             }
             if ($self->_isPackageImported($file)) {
-                $logger->trace("Package '$file' is already imported") if $logger->is_trace();
+                print "Package '$file' is already imported\n" if $self->verbose;
                 next;
             }
 
-            $logger->info("Accepted package '$file'") if $logger->is_info();
+            print "Accepted package '$file'\n" if $self->verbose;
             push(@newFilePaths, $file);
         }
         else {
-            $logger->trace("Package '$file' doesn't match the regexp '$regexpValidator'") if $logger->is_trace();
+            print "Package '$file' doesn't match the regexp '$regexpValidator'\n" if $self->verbose;
         }
     }
     return \@newFilePaths;
@@ -162,7 +162,7 @@ sub _getPackages {
     my ($self, $ftpcon, $filePaths) = @_;
 
     my $packagesDir = $self->getLocalStorageDir();
-    $logger->debug("Getting packages to '".$packagesDir->stringify()."'") if $logger->is_debug();
+    print "Getting packages to '".$packagesDir->stringify()."'\n" if $self->verbose;
     unless($packagesDir->e()) {
         $packagesDir->create();
         unless($packagesDir->e()) {
@@ -179,7 +179,7 @@ sub _getPackages {
         }
         $ftpcon->get($filePath, $newPackage->stringify);
         push(@newPackages, $newPackage);
-        $logger->trace("Package '".$newPackage->stringify."' fetched") if $logger->is_debug();
+        print "Package '".$newPackage->stringify."' fetched\n" if $self->verbose;
     }
 
     return \@newPackages;
@@ -207,7 +207,7 @@ sub loadImportedPackages {
     foreach my $ib (@$ary) {
         my $basename = File::Basename::basename($ib->{file_name});
         $fns->{ $basename } = $ib;
-        $logger->trace('Found existing import batch '.$basename) if $logger->is_trace();
+        print "Found existing import batch ".$basename."\n" if $self->verbose;
     }
     $self->{importedBatches} = $fns;
 }
@@ -270,15 +270,14 @@ sub stageLocalPackage {
         if (my $m = _parseString(\$output, 'Number of records matched:\s+(\d+)')) {
             $package->{stagingReport}->{recordsMatched} = $m->[0];
         }
-        $logger->info("Package '$package', batch number ".$package->{batchNumber}." staged with ".
+        print "Package '$package', batch number ".$package->{batchNumber}." staged with ".
                       "input:'".$package->{stagingReport}->{inputRecords}."' ".
                       "valid:'".$package->{stagingReport}->{validRecords}."' ".
                       "invalid:'".$package->{stagingReport}->{invalidRecords}."' ".
                       "matched:'".$package->{stagingReport}->{recordsMatched}."' ".
-                      "") if $logger->is_info();
+                      "";
     } catch {
         $package->{stagingReport}->{error} = (blessed($_)) ? $_ : die $_;
-        $logger->error( $package->{stagingReport}->{error} ) if $logger->is_error();
     };
 }
 
@@ -324,14 +323,13 @@ sub commitStagedPackage {
         if (my $m = _parseString(\$output, 'Number of records ignored:\s+(\d+)')) {
             $package->{commitReport}->{recordsIgnored} = $m->[0];
         }
-        $logger->info("Package '$package', batch number ".$package->{batchNumber}." committed with ".
+        print "Package '$package', batch number ".$package->{batchNumber}." committed with ".
                       "added:'".$package->{commitReport}->{recordsAdded}."' ".
                       "replaced:'".$package->{commitReport}->{recordsReplaced}."' ".
                       "ignored:'".$package->{commitReport}->{recordsIgnored}."' ".
-                      "") if $logger->is_info();
+                      "";
     } catch {
         $package->{commitReport}->{error} = (blessed($_)) ? $_ : die $_;
-        $logger->error( $package->{commitReport}->{error} ) if $logger->is_error();
     }
 }
 
