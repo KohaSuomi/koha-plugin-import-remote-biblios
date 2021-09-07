@@ -247,7 +247,7 @@ sub stageLocalPackage {
         my @args = ($ENV{KOHA_PATH}.'/misc/stage_file.pl',
                     '--file',     $package,
                     '--encoding', $encoding,
-                    '--match',   ($matcher->{id} || 1),
+                    '--match',   ($matcher || 1),
                     '--comment',  '',
                     '--format',   $format);
         open(my $OUT, "@args 2>&1 |") or die "system @args failed: $!";

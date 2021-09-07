@@ -12,14 +12,14 @@ use C4::Context;
 use utf8;
 
 ## Here we set our plugin version
-our $VERSION = "1.3";
+our $VERSION = "1.4";
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
     name            => 'Import remote biblios',
     author          => 'Johanna Räisä',
     date_authored   => '2021-08-24',
-    date_updated    => "2021-08-24",
+    date_updated    => "2021-09-07",
     minimum_version => '17.05.00.000',
     maximum_version => undef,
     version         => $VERSION,
