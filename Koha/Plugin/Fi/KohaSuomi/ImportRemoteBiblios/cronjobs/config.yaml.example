@@ -11,4 +11,4 @@ fileRegexp: 'B(\d{4})(\d{2})(\d{2})xml'
 localStorageDir: /var/spool/biblios
 stageFiles: 1
 commitFiles: 1
-matcher: ISBN
+matcher: 1

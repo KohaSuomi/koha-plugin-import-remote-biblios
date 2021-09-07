@@ -27,3 +27,28 @@ To set up the Koha plugin system you must first make some changes to your instal
     Restart your webserver
 
 Once set up is complete you will need to alter your UseKohaPlugins system preference. On the Tools page you will see the Tools Plugins and on the Reports page you will see the Reports Plugins.
+
+# Configuring
+
+Add configuration yaml file to path you prefer and fill parameters shown below. There is an example file in this repo.
+
+    remoteId: uniqname
+    host: ftp.com
+    port: 21
+    username: foo
+    password: foobaa
+    protocol: passive ftp
+    basedir: /
+    encoding: UTF-8
+    format: MARCXML
+    fileRegexp: 'B(\d{4})(\d{2})(\d{2})xml'
+    localStorageDir: /var/spool/biblios
+    stageFiles: 1
+    commitFiles: 1
+    matcher: 1
+
+# Running the script
+
+Set the script to crontab or run by hand
+
+perl runImportRemoteBiblios.pl -c /etc/koha/importremotebiblios.yaml -v
