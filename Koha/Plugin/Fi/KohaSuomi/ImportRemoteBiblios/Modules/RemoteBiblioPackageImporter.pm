@@ -275,7 +275,7 @@ sub stageLocalPackage {
                       "valid:'".$package->{stagingReport}->{validRecords}."' ".
                       "invalid:'".$package->{stagingReport}->{invalidRecords}."' ".
                       "matched:'".$package->{stagingReport}->{recordsMatched}."' ".
-                      "";
+                      "\n";
     } catch {
         $package->{stagingReport}->{error} = (blessed($_)) ? $_ : die $_;
     };
@@ -327,7 +327,7 @@ sub commitStagedPackage {
                       "added:'".$package->{commitReport}->{recordsAdded}."' ".
                       "replaced:'".$package->{commitReport}->{recordsReplaced}."' ".
                       "ignored:'".$package->{commitReport}->{recordsIgnored}."' ".
-                      "";
+                      "\n";
     } catch {
         $package->{commitReport}->{error} = (blessed($_)) ? $_ : die $_;
     }
