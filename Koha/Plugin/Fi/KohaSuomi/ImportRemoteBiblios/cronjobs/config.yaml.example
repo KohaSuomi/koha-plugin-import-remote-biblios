@@ -12,3 +12,4 @@ localStorageDir: /var/spool/biblios
 stageFiles: 1
 commitFiles: 1
 matcher: 1
+stageFilePath: /var/foo/bar
