@@ -61,6 +61,9 @@ sub getRemoteId {
 sub getPackageMaxAge {
     return shift->{_params}->{packageMaxAge};
 }
+sub getStageFilePath {
+    return shift->{_params}->{stageFilePath};
+}
 
 =head2 getLocalStorageDir
 
@@ -244,7 +247,7 @@ sub stageLocalPackage {
 
     $package->{stagingReport} = {};
     try {
-        my @args = ($ENV{KOHA_PATH}.'/misc/stage_file.pl',
+        my @args = ($class->getStageFilePath(),
                     '--file',     $package,
                     '--encoding', $encoding,
                     '--match',   ($matcher || 1),

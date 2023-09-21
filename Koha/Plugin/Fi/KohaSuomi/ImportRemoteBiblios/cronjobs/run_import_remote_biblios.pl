@@ -20,6 +20,8 @@ use Modern::Perl;
 use Getopt::Long;
 use Koha::Plugins;
 use Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter;
+use File::Basename;
+my $dirname = dirname(__FILE__);
 
 binmode( STDOUT, ":utf8" );
 binmode( STDERR, ":utf8" );
@@ -49,5 +51,6 @@ if(!$config) {
 
 my $configfile = eval { YAML::XS::LoadFile($config) };
 $configfile->{verbose} = $verbose;
+$configfile->{stageFilePath} = $dirname."/stage_file.pl";
 my $importer = Koha::Plugin::Fi::KohaSuomi::ImportRemoteBiblios::Modules::RemoteBiblioPackageImporter->new($configfile);
 $importer->importFromRemote();
