@@ -219,6 +219,12 @@ sub _isPackageImported {
     if (exists $self->{importedBatches}->{$fileName}) {
         return 1;
     }
+    my $dbh = C4::Context->dbh();
+    my $sth = $dbh->prepare('SELECT * FROM import_batches WHERE file_name = ?;');
+    $sth->execute($fileName);
+    if ($sth->fetchrow_hashref()) {
+        return 1;
+    }
     return undef;
 }
 
