@@ -23,7 +23,7 @@ our $metadata = {
     minimum_version => '17.05.00.000',
     maximum_version => undef,
     version         => $VERSION,
-    description     => 'Import and stage records from remote server',
+    description     => 'Import and stage records from remote server. (Täti)',
 };
 
 ## This is the minimum code required for a plugin's 'new' method
