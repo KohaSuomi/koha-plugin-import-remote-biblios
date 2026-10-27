@@ -17,14 +17,14 @@ our $VERSION = "1.4";
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
-    name            => 'Import remote biblios',
+    name            => 'Import bibliographic records from remote server',
     author          => 'Johanna Räisä',
     date_authored   => '2021-08-24',
     date_updated    => "2021-09-07",
     minimum_version => '17.05.00.000',
     maximum_version => undef,
     version         => $VERSION,
-    description     => 'Import and stage records from remote server. (Täti)',
+    description     => 'Import and stage bibliographic records from remote server. (Täti)',
 };
 
 sub get_localized_metadata {
@@ -33,14 +33,14 @@ sub get_localized_metadata {
     my ($name, $description);
 
     if ( $lang eq 'sv-SE' ) {
-        $name = "Importera fjärrbibliografier";
-        $description = "Importera och förbered poster från fjärrserver. (Täti)";
+        $name = "Importera bibliografiska poster från fjärrserver";
+        $description = "Importera och förbered bibliografiska poster från fjärrserver. (Täti)";
     } elsif ( $lang eq 'fi-FI' ) {
-        $name = "Tuo tietueita etäpalvelimelta";
-        $description = "Tuo ja valmistele tietueita etäpalvelimelta. (Täti)";
+        $name = "Tuo kuvailutietueita etäpalvelimelta";
+        $description = "Tuo ja valmistele kuvailutietueita etäpalvelimelta. (Täti)";
     } else {
-        $name = "Import remote biblios";
-        $description = "Import and stage records from remote server. (Täti)";
+        $name = "Import bibliographic records from remote server";
+        $description = "Import and stage bibliographic records from remote server. (Täti)";
     }
     return ($name, $description);
 }
